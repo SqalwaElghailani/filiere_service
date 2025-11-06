@@ -15,6 +15,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,6 +32,7 @@ import java.util.List;
 )
 @RestController
 @RequestMapping("/v1/filieres")
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class ApiRestFull {
 
     private final FiliereServiceImpl filiereServiceImpl;
@@ -58,7 +61,7 @@ public class ApiRestFull {
                     @ApiResponse(responseCode = "5xx",description = "erreur serveur"),
             }
     )
-
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @PostMapping
     public ResponseEntity<ResponseFiliereDto> add(@RequestBody RequestFiliereDto requestFiliereDto) {
         ResponseFiliereDto response = filiereServiceImpl.Add_Filiere(requestFiliereDto);
@@ -80,6 +83,8 @@ public class ApiRestFull {
             }
     )
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN','SCOPE_USER')")
+
     public ResponseEntity<List<ResponseFiliereDto>> getAll() {
         List<ResponseFiliereDto> filieres = filiereServiceImpl.GetAllFilieres();
         return ResponseEntity.ok(filieres);
@@ -100,6 +105,8 @@ public class ApiRestFull {
             }
     )
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN','SCOPE_USER')")
+
     public ResponseEntity<ResponseFiliereDto> getById(@PathVariable Integer id) {
         ResponseFiliereDto response = filiereServiceImpl.GetFiliereByID(id);
         return ResponseEntity.ok(response);
@@ -128,6 +135,7 @@ public class ApiRestFull {
             }
     )
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public ResponseEntity<ResponseFiliereDto> update(
             @PathVariable Integer id,
             @RequestBody RequestFiliereDto requestFiliereDto) {
@@ -145,6 +153,7 @@ public class ApiRestFull {
             }
     )
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         filiereServiceImpl.DeleteFiliereByID(id);
         return ResponseEntity.ok().build();
@@ -163,6 +172,7 @@ public class ApiRestFull {
                     @ApiResponse(responseCode = "5xx",description = "erreur serveur"),
             }
     )
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN','SCOPE_USER')")
     @GetMapping("/{id}/with-etudiants")
     public ResponseEntity<FiliereWithEtudiantsDto> getFiliereWithEtudiants(@PathVariable Integer id) {
         FiliereWithEtudiantsDto response = filiereServiceImpl.getFiliereWithEtudiants(id);
